@@ -6,6 +6,7 @@ export interface UserAttributes {
   name: string;
   email: string;
   password: string;
+  role: string;
 }
 
 @Table({
@@ -43,4 +44,12 @@ export class User extends Model<UserAttributes> implements UserAttributes {
   allowNull: true,
  })
   declare avatarUrl: string;
+  
+  @Column({
+    type: DataType.ARRAY(DataType.STRING),
+    allowNull: false,
+    defaultValue: [],
+  })
+  declare role: string;
+
 }

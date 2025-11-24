@@ -1,10 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, Query, ParseIntPipe, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, Query, ParseIntPipe, UseInterceptors, UploadedFile, BadRequestException, UseGuards } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { StorageService } from 'src/storage/storage.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Book } from './models/book.model';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles.decorator';
 
 @Controller('books')
 export class BooksController {
@@ -21,6 +24,8 @@ export class BooksController {
     return this.booksService.findAll(page, limit);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('admin')
   @Post()
   create(@Body() createBookDto: CreateBookDto) {
     return this.booksService.create(createBookDto);
@@ -36,6 +41,8 @@ export class BooksController {
     return this.booksService.update(+id, updateBookDto);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('admin')
   @HttpCode(204)
   @Delete(':id')
   remove(@Param('id') id: number) {

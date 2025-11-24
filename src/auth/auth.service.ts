@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import  * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/users/users.service';
@@ -9,6 +9,7 @@ import { UserAttributes } from 'src/users/models/user.model';
 @Injectable()
 export class AuthService {
     private jwtExpirationTimeInSeconds: number;
+    private readonly logger = new Logger(AuthService.name);
 
     constructor (
         private readonly usersServices: UsersService,
@@ -21,11 +22,29 @@ export class AuthService {
    async signIn(username: string, password: string): Promise<AuthResponseDto>{
         const foundUser: UserAttributes | undefined = await this.usersServices.findByUserName(username);
 
-        if (!foundUser || (await bcrypt.compare(password, foundUser.password))) {
+        this.logger.log(`[LOGIN DEBUG] Tentativa para: ${username}. Usuário encontrado: ${!!foundUser}`);
+
+        if (!foundUser) {
             throw new UnauthorizedException('Credenciais inválidas!');
         }
 
-        const payload = { sub: foundUser.id, name : foundUser.name}; // Ver novamente na linha 11 do users.services.ts
+        this.logger.log(`[LOGIN DEBUG] Senha enviada: ${password}`);
+        this.logger.log(`[LOGIN DEBUG] Hash armazenado: ${foundUser.password}`);
+
+        const isPasswordValid = await bcrypt.compare(password, foundUser.password);
+
+        this.logger.log(`[LOGIN DEBUG] Resultado da comparação de senha: ${isPasswordValid}`);
+
+        if (!isPasswordValid) {
+            throw new UnauthorizedException('Credenciais inválidas!')
+        }
+
+        const payload = { 
+            sub: foundUser.id,
+            name : foundUser.name, 
+            role: foundUser.role,
+        }; 
+
         const token = this.jwtService.sign(payload);
 
         return { token, expiresIn: this.jwtExpirationTimeInSeconds }

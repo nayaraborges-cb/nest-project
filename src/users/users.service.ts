@@ -8,7 +8,7 @@ import { User } from './models/user.model';
 @Injectable()
 export class UsersService {
   async findByUserName(username: string): Promise<UserAttributes | undefined> {
-      return this.users.find(user => user.email === username); // Aqui ele vai procurar por email
+      return this.users.find(user => user.email === username); 
         throw new Error('Method not implemented.');
     }
 
@@ -40,7 +40,8 @@ export class UsersService {
       id: 1,
       name: "Asmodan",
       email: "redstone@gmail.com",
-      password: "pass",
+      password: "$2b$10$W.Duj6uW/AUOqkU6yWM7q.62JLfbYOIsR9IswbI0JRkdc2YwosnLW",
+      role: "admin",
     },
   ]
   usersService: any;
@@ -49,13 +50,14 @@ export class UsersService {
 
       const saltOrRounds = 10;
       const hashedPassword = await bcrypt.hash(createUserDto.password, saltOrRounds);
-      const newBook: UserAttributes = {
+      const newUser: UserAttributes = {
           id: this.users.length > 0 ? Math.max(...this.users.map(b => b.id)) + 1 : 1,
           ...createUserDto,
           password: hashedPassword,
+          role: (createUserDto as any).role ?? (createUserDto as any).role ?? [],
       };
-      this.users.push(newBook);
-      return newBook;
+      this.users.push(newUser);
+      return newUser;
     }
  
 

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common'
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, UseInterceptors, UploadedFile, BadRequestException, UseGuards } from '@nestjs/common'
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
@@ -6,6 +6,12 @@ import { StorageModule } from 'src/storage/storage.module';
 import { StorageService } from 'src/storage/storage.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { User } from './models/user.model';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles.decorator';
+
+@UseGuards(AuthGuard, RolesGuard)
+@Roles('admin')
 
 @Controller('users')
 export class UsersController {
