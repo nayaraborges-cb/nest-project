@@ -12,10 +12,17 @@ export class UsersService {
         throw new Error('Method not implemented.');
     }
 
-  async updateAvatarUrl(id: number, avatarUrl: string): Promise<User>
+  async updateAvatarUrl(id: number, avatarUrl: string): Promise<User> {
+     const user = this.users.find(u => u.id === id);
+
+      if (!user)
+  
   {
     throw new Error('Method not implemented.');
-  }
+  } 
+    user.avatarUrl = avatarUrl;
+    return user as User;
+}
 
  findAll(page: number = 1, limit: number = 10) {
     const startIndex = (page -1) * limit;
@@ -42,6 +49,16 @@ export class UsersService {
       email: "redstone@gmail.com",
       password: "$2b$10$W.Duj6uW/AUOqkU6yWM7q.62JLfbYOIsR9IswbI0JRkdc2YwosnLW",
       role: "admin",
+      avatarUrl: "",
+    },
+
+     {
+      id: 3,
+      name: "Cassandra",
+      email: "cassidy@gmail.com",
+      password: "$2b$10$O6aEnfyhZMCZTnvIhjfdSeHNn.bqIVvwqNShfkvb6bKzrO46ekPui",
+      role: "admin",
+      avatarUrl: "",
     },
   ]
   usersService: any;
@@ -51,10 +68,11 @@ export class UsersService {
       const saltOrRounds = 10;
       const hashedPassword = await bcrypt.hash(createUserDto.password, saltOrRounds);
       const newUser: UserAttributes = {
-          id: this.users.length > 0 ? Math.max(...this.users.map(b => b.id)) + 1 : 1,
-          ...createUserDto,
-          password: hashedPassword,
-          role: (createUserDto as any).role ?? (createUserDto as any).role ?? [],
+        id: this.users.length > 0 ? Math.max(...this.users.map(b => b.id)) + 1 : 1,
+        ...createUserDto,
+        password: hashedPassword,
+        role: (createUserDto as any).role ?? (createUserDto as any).role ?? [],
+        avatarUrl: ''
       };
       this.users.push(newUser);
       return newUser;

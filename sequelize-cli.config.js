@@ -1,10 +1,11 @@
 require('dotenv').config();
+const path = require('path');
 
 module.exports = {
   development: {
-    ...require('./database/config/database'),
+    ...require(path.resolve('dist/database/config/database.js')),
   },
   production: {
-    ...require('./database/config/database'),
+    ...require(path.resolve('dist/database/config/database.js')),
   },
 };

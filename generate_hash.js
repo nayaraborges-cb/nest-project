@@ -4,7 +4,7 @@
 const bcrypt = require('bcrypt');
 
 // A senha que você está usando no Thunder Client
-const password = 'pass'; 
+const password = '125Pato'; 
 const saltRounds = 10; // O mesmo valor usado no seu UsersService.create
 
 async function generateHash() {

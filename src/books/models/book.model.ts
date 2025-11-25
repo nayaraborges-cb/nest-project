@@ -54,6 +54,6 @@ export class Book extends Model<BookAttributes> implements BookAttributes {
     type: DataType.STRING,
     allowNull: true,
   })
-  declare coverUrl: string;
+  declare coverKey: string;
 
 }

@@ -1,40 +1,31 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, InternalServerErrorException, Inject } from '@nestjs/common';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class StorageService {
-  private s3Client: S3Client;
-  private bucketName: string;
-
-  constructor(private configService: ConfigService) {
-    this.bucketName = this.configService.get<string>('MINIO_BUCKET_NAME')!;
-
-    
-    this.s3Client = new S3Client({
-      endpoint: `http://${this.configService.get('MINIO_ENDPOINT' )!}:${this.configService.get('MINIO_PORT')}`,
-      region: 'us-east-1', 
-      forcePathStyle: true,
-      credentials: {
-        accessKeyId: this.configService.get<string>('MINIO_ACCESS_KEY')!,
-        secretAccessKey: this.configService.get<string>('MINIO_SECRET_KEY')!,
-      },
-    });
+  updateFile(file: Express.Multer.File, arg1: string) {
+    throw new Error('Method not implemented.');
   }
+  constructor(
+    private configService: ConfigService,
+    @Inject('S3_CLIENT') private readonly s3Client: S3Client, 
+  ) {}
 
-  async uploadFile(file: Express.Multer.File, folder: string): Promise<string> {
-    const fileName = `${folder}/${Date.now()}-${file.originalname}`;
+async uploadFile(file: Express.Multer.File, folder: string, fileKey?: string): Promise<string> {
+  const bucketName = this.configService.get<string>('MINIO_BUCKET_NAME')!;
+  const key = fileKey ?? `${folder}/${Date.now()}-${file.originalname}`;
 
     const uploadParams = {
-      Bucket: this.bucketName,
-      Key: fileName,
+      Bucket: bucketName,
+      Key: key,
       Body: file.buffer,
       ContentType: file.mimetype,
     };
 
     try {
       await this.s3Client.send(new PutObjectCommand(uploadParams));
-      return `http://${this.configService.get('MINIO_ENDPOINT' )}:${this.configService.get('MINIO_PORT')}/${this.bucketName}/${fileName}`;
+      return key;
     } catch (error) {
       console.error('Erro ao fazer upload para MinIO:', error);
       throw new InternalServerErrorException('Falha ao fazer upload do arquivo.');

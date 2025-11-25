@@ -2,7 +2,6 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, UseInterce
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
-import { StorageModule } from 'src/storage/storage.module';
 import { StorageService } from 'src/storage/storage.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { User } from './models/user.model';
@@ -27,12 +26,12 @@ export class UsersController {
     @Param('id') id: number,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    if (file) {
+    if (!file) {
       throw new BadRequestException('Nenhum arquivo avatar fornecido.');
     }
 
-    const avatarUrl = await this.storageService.uploadFile(file, 'avatars');
-    const user: User = await this.usersService.updateAvatarUrl(id, avatarUrl);
+    const avatarUrl = await this.storageService.uploadFile(file, 'avatars'); 
+    const user: User = await this.usersService.updateAvatarUrl(id, avatarUrl); 
 
     return {
       message: 'Avatar atualizado com sucesso!',

@@ -2,6 +2,7 @@ import { Table, Column, Model, DataType, AllowNull } from 'sequelize-typescript'
 
 
 export interface UserAttributes {
+  avatarUrl: string;
   id: number;
   name: string;
   email: string;
@@ -13,6 +14,7 @@ export interface UserAttributes {
   tableName: 'users',
 })
 export class User extends Model<UserAttributes> implements UserAttributes {
+  avatarUrl: string;
   @Column({
     type: DataType.INTEGER,
     primaryKey: true,
@@ -43,7 +45,7 @@ export class User extends Model<UserAttributes> implements UserAttributes {
   type: DataType.STRING,
   allowNull: true,
  })
-  declare avatarUrl: string;
+  declare avatarKey: string;
   
   @Column({
     type: DataType.ARRAY(DataType.STRING),

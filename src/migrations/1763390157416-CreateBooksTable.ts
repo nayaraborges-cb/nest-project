@@ -1,8 +1,28 @@
 import { QueryInterface, DataTypes } from 'sequelize';
 
+'use strict';
+
 module.exports = {
-  async up(queryInterface: QueryInterface) {
-    await queryInterface.createTable('books', {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.addColumn('books', 'coverKey', {
+      type: Sequelize.STRING,
+      allowNull: true,
+    });
+  },
+
+  async down(queryInterface, Sequelize) {
+    await queryInterface.removeColumn('books', 'coverKey');
+  },
+};
+
+
+/*module.exports = {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.addColumn('books', 'coverKey', {
+
+      type: Sequelize.STRING,
+      allowNull: true,
+
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -41,7 +61,7 @@ module.exports = {
     });
   },
 
-  async down(queryInterface: QueryInterface) {
-    await queryInterface.dropTable('books');
+  async down(queryInterface, Sequelize) {
+    await queryInterface.removeColumn('books', 'coverKey');
   },
-};
+}; */

@@ -6,8 +6,11 @@ import { Book } from './models/book.model';
 
 @Injectable()
 export class BooksService {
+  updatecoverKey(id: number, coverKey: string) {
+    throw new Error('Method not implemented.');
+  }
 
-  async updateCoverUrl(id: number, coverUrl: string): Promise<Book> {
+  async updateCoverKey(id: number, coverKey: string): Promise<Book> {
     return {} as Book;
   }
 

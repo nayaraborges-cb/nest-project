@@ -4,7 +4,6 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { StorageService } from 'src/storage/storage.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Book } from './models/book.model';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
@@ -58,7 +57,16 @@ export class BooksController {
     if (!file) {
       throw new BadRequestException('Nenhum arquivo de capa fornecido.');
     }
-    const coverUrl = await this.storageService.uploadFile(file, 'covers');
-    const book = await this.booksService.updateCoverUrl(id, coverUrl);
+
+    const fileKey = `cover/${Date.now()}-{file.originalname}`;
+
+    await this.storageService.uploadFile(file, 'covers', fileKey);
+
+    const book = await this.booksService.updateCoverKey(id, fileKey);
+
+    return {
+      message: 'Capa atualizada com sucesso!',
+      coverKey: book.coverKey,
+    };
   }
 }
