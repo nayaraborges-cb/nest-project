@@ -49,24 +49,24 @@ export class BooksController {
   }
 
   @Post(':id/cover')
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadCover(
-    @Param('id') id: number,
-    @UploadedFile() file: Express.Multer.File,
-  ) {
-    if (!file) {
-      throw new BadRequestException('Nenhum arquivo de capa fornecido.');
-    }
-
-    const fileKey = `cover/${Date.now()}-{file.originalname}`;
-
-    await this.storageService.uploadFile(file, 'covers', fileKey);
-
-    const book = await this.booksService.updateCoverKey(id, fileKey);
-
-    return {
-      message: 'Capa atualizada com sucesso!',
-      coverKey: book.coverKey,
-    };
+@UseInterceptors(FileInterceptor('file'))
+async uploadCover(
+  @Param('id') id: number,
+  @UploadedFile() file: Express.Multer.File,
+) {
+  if (!file) {
+    throw new BadRequestException('Nenhum arquivo de capa fornecido.');
   }
+  const fileKey = `covers/${Date.now()}-${file.originalname}`;
+
+  await this.storageService.uploadFile(file, 'covers', fileKey);
+
+  const book = await this.booksService.updateCoverKey(id, fileKey);
+
+  return {
+    message: 'Capa atualizada com sucesso!',
+    coverKey: book.coverKey,
+  };
+}
+
 }

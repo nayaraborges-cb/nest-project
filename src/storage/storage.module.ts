@@ -9,11 +9,12 @@ import { S3Client } from '@aws-sdk/client-s3';
     StorageService,
     {
       provide: 'S3_CLIENT',
-      useFactory: (configService: ConfigService) => {
-        const endpoint = configService.get<string>('MINIO_ENDPOINT');
-        const port = configService.get<string>('MINIO_PORT');
-        const accessKeyId = configService.get<string>('MINIO_ACCESS_KEY');
-        const secretAccessKey = configService.get<string>('MINIO_SECRET_KEY');
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        const endpoint = config.get<string>('MINIO_ENDPOINT');
+        const port = config.get<string>('MINIO_PORT');
+        const accessKeyId = config.get<string>('MINIO_ACCESS_KEY');
+        const secretAccessKey = config.get<string>('MINIO_SECRET_KEY');
 
         if (!endpoint || !port || !accessKeyId || !secretAccessKey) {
           throw new Error('Variáveis de ambiente MinIO não definidas corretamente');
@@ -21,12 +22,11 @@ import { S3Client } from '@aws-sdk/client-s3';
 
         return new S3Client({
           region: 'us-east-1',
-          endpoint: 'http://${endpoint}:${port}',
+          endpoint: `${endpoint}:${port}`,
           credentials: { accessKeyId, secretAccessKey },
           forcePathStyle: true,
         });
       },
-      inject: [ConfigService],
     },
   ],
   exports: [StorageService],

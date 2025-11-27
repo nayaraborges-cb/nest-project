@@ -2,6 +2,7 @@ import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 import { BooksService } from './books/books.service';
 import { UsersService } from './users/users.service';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller()
 export class AppController {
@@ -11,6 +12,8 @@ export class AppController {
     private readonly booksService: BooksService,
   ) {}
 
+
+  @Throttle(5, 60)
   @Get('books-list')
   listBooks(
     @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
@@ -19,6 +22,7 @@ export class AppController {
     return this.booksService.findAll(page, limit);
   }
 
+  @Throttle(5, 60)
   @Get('users-list')
   listUsers(
     @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
@@ -32,3 +36,5 @@ export class AppController {
     return this.appService.getHello();
   }
 }
+
+

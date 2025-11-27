@@ -14,9 +14,36 @@ export class RedisThrottlerStorage implements ThrottlerStorage {
       port: Number(process.env.REDIS_PORT) || 6379,
     });
   }
+
   storage: Record<string, ThrottlerStorageOptions>;
-  increment(key: string, ttl: number): Promise<ThrottlerStorageRecord> {
-    throw new Error('Method not implemented.');
+
+  async increment(key: string, ttl: number): Promise<ThrottlerStorageRecord> {
+    const now = Date.now();
+    const multi = this.redis.multi();
+
+  
+    multi.zremrangebyscore(key, 0, now - ttl * 1000);
+
+   
+    multi.zadd(key, now + ttl * 1000, now.toString());
+
+    multi.expire(key, ttl);
+
+    multi.zcard(key);
+
+    const result = await multi.exec();
+
+    if (!result) {
+      throw new Error('Redis transaction failed or was aborted.');
+    }
+
+    const hits = result[3][1] as number;
+    const timeToExpire = result[4][1] as number; 
+
+    return {
+      totalHits: hits,
+      timeToExpire: timeToExpire,
+    };
   }
 
   async getRecord(key: string): Promise<number[]> {
@@ -28,10 +55,8 @@ export class RedisThrottlerStorage implements ThrottlerStorage {
     const now = Date.now();
     const multi = this.redis.multi();
 
-    // push timestamp
     multi.rpush(key, now.toString());
 
-    // define TTL
     multi.expire(key, ttl);
 
     await multi.exec();
