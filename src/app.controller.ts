@@ -5,11 +5,10 @@ import { UsersService } from './users/users.service';
 
 @Controller()
 export class AppController {
-
   constructor(
     private readonly appService: AppService,
     private readonly usersService: UsersService,
-    private readonly booksService: BooksService, 
+    private readonly booksService: BooksService,
   ) {}
 
   @Get('books-list')
@@ -27,14 +26,6 @@ export class AppController {
   ) {
     return this.usersService.findAll(page, limit);
   }
-
-  @Get()
-    findAll(
-      @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
-      @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 10,
-    ) {
-      return this.usersService.findAll(page, limit);
-    }
 
   @Get()
   getHello(): string {

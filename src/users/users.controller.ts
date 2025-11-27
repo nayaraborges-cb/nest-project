@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, UseInterceptors, UploadedFile, BadRequestException, UseGuards } from '@nestjs/common'
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, UseInterceptors, UploadedFile, BadRequestException, UseGuards, ValidationPipe } from '@nestjs/common'
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
@@ -50,15 +50,32 @@ export class UsersController {
   }
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  create(
+    @Body(new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+    }))
+    createUserDto: CreateUserDto
+  ) {
     return this.usersService.create(createUserDto);
   }
 
+    @Patch(':id')
+    update(
+      @Param('id') id: number,
+      @Body(new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },  
+      }))
+      updateUserDto: UpdateUserDTO
+    ) {
+      return this.usersService.update(id, updateUserDto);
+    }
 
-  @Patch(':id')
-  update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDTO) {
-    return this.usersService.update(+id, updateUserDto);
-  }
 
   @HttpCode(204)
   @Delete(':id')

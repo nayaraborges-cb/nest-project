@@ -7,41 +7,6 @@ import { User } from './models/user.model';
 
 @Injectable()
 export class UsersService {
-  async findByUserName(username: string): Promise<UserAttributes | undefined> {
-      return this.users.find(user => user.email === username); 
-        throw new Error('Method not implemented.');
-    }
-
-  async updateAvatarUrl(id: number, avatarUrl: string): Promise<User> {
-     const user = this.users.find(u => u.id === id);
-
-      if (!user)
-  
-  {
-    throw new Error('Method not implemented.');
-  } 
-    user.avatarUrl = avatarUrl;
-    return user as User;
-}
-
- findAll(page: number = 1, limit: number = 10) {
-    const startIndex = (page -1) * limit;
-    const endIndex = page * limit;
-    const booksOnePage = this.users.slice(startIndex, endIndex);
-    const totalItems = this.users.length;
-    const totalPages = Math.ceil(totalItems / limit);
-
-    return {
-      data: booksOnePage,
-      meta: {
-        totalItems,
-        totalPages,
-        currentPage: page,
-        itemsPerPage: limit,
-      },
-    };
-  }
-
   private users: UserAttributes[] = [
     {
       id: 1,
@@ -51,8 +16,7 @@ export class UsersService {
       role: "admin",
       avatarUrl: "",
     },
-
-     {
+    {
       id: 3,
       name: "Cassandra",
       email: "cassidy@gmail.com",
@@ -60,48 +24,80 @@ export class UsersService {
       role: "admin",
       avatarUrl: "",
     },
-  ]
-  usersService: any;
+  ];
 
-   async create(createUserDto: CreateUserDto): Promise<UserAttributes> {
+  async findByUserName(username: string): Promise<UserAttributes | undefined> {
+    return this.users.find(user => user.email === username);
+  }
 
-      const saltOrRounds = 10;
-      const hashedPassword = await bcrypt.hash(createUserDto.password, saltOrRounds);
-      const newUser: UserAttributes = {
-        id: this.users.length > 0 ? Math.max(...this.users.map(b => b.id)) + 1 : 1,
-        ...createUserDto,
-        password: hashedPassword,
-        role: (createUserDto as any).role ?? (createUserDto as any).role ?? [],
-        avatarUrl: ''
-      };
-      this.users.push(newUser);
-      return newUser;
+  async updateAvatarUrl(id: number, avatarUrl: string): Promise<User> {
+    const user = this.users.find(u => u.id === id);
+
+    if (!user) {
+      throw new NotFoundException(`User ID ${id} not found.`);
     }
- 
+
+    user.avatarUrl = avatarUrl;
+    return user as User;
+  }
+
+  findAll(page: number = 1, limit: number = 10) {
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
+    const usersPage = this.users.slice(startIndex, endIndex);
+    const totalItems = this.users.length;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return {
+      data: usersPage,
+      meta: {
+        totalItems,
+        totalPages,
+        currentPage: page,
+        itemsPerPage: limit,
+      },
+    };
+  }
+
+  async create(createUserDto: CreateUserDto): Promise<UserAttributes> {
+    const saltOrRounds = 10;
+    const hashedPassword = await bcrypt.hash(createUserDto.password, saltOrRounds);
+
+    const newUser: UserAttributes = {
+      id: this.users.length > 0 ? Math.max(...this.users.map(u => u.id)) + 1 : 1,
+      ...createUserDto,
+      password: hashedPassword,
+      role: createUserDto.role ?? 'user',
+      avatarUrl: '',
+    };
+
+    this.users.push(newUser);
+    return newUser;
+  }
 
   findOne(id: number) {
-    const user = this.users.find(user => user.id === id) 
+    const user = this.users.find(user => user.id === id);
     if (!user) {
-      throw new NotFoundException(`User ID ${id} not found`)
+      throw new NotFoundException(`User ID ${id} not found`);
     }
-    return user
+    return user;
   }
 
   update(id: number, updateUserDto: UpdateUserDTO) {
-    const existingUser = this.findOne(id)
-    if (existingUser as any) {
-      const index = this.users.findIndex(user => user.id === id)
-      this.users[index] = {
-        id,
-        ...updateUserDto,
-      } as UserAttributes;
-    }
+    const existingUser = this.findOne(id);
+    const index = this.users.findIndex(user => user.id === id);
+
+    this.users[index] = {
+      ...existingUser,
+      ...updateUserDto,
+    };
   }
 
   remove(id: number) {
-    const index = this.users.findIndex( user => user.id === id)
+    const index = this.users.findIndex(user => user.id === id);
     if (index >= 0) {
-      this.users.splice(index, 1)
+      this.users.splice(index, 1);
     }
   }
 }
